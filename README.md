@@ -1,3 +1,5 @@
+## 此库用于记录学习substrate进阶课kitty相关课程，使用substrate-developer-hub/substrate-node-template tag v2.0.0 初始化。
+#
 # Substrate Node Template
 
 A new FRAME-based Substrate node, ready for hacking :rocket:
