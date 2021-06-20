@@ -49,10 +49,11 @@ decl_event!(
 decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
         #[weight=0]
-        pub fn create(origin){  //create 一个kitty
-        let sender = ensure_signed(origin)?;    //对于所有可调用方法，首先就要判断它的签名
-        let kitty_id = Self::next_kitty_id()?;    //找到新创建的kitty的id，这里定义一个方法来实现，因为找到下个id其它地方也可能会使用。比如breed时。
+        pub fn create(origin){                   //create 一个kitty
+        let sender = ensure_signed(origin)?;     //对于所有可调用方法，首先就要判断它的签名
+        let kitty_id = Self::next_kitty_id()?;   //找到新创建的kitty的id，这里定义一个方法来实现，因为找到下个id其它地方也可能会使用。比如breed时。
         let dna = Self::random_value(&sender);   //为kitty创建数据，即之前说的u8数组。创建方法需要些随机化的方式
+        let kitty = Kitty(dna);                  //有了dna数据后需要存储到链上，此为存储的操作。首先根据dna创建这个数据结构。因为链上定义的type是Kitty（见29行），所以这里用Kitty实例化一个object。
     }
     }
 }
