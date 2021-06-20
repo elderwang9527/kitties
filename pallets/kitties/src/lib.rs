@@ -66,6 +66,14 @@ decl_module! {
         Self::deposit_event(RawEvent::Transferred(sender, to, kitty_id));    // 操作成功后抛出event
     }
 
+    #[weight = 0]
+    pub fn breed(origin, kitty_id_1: KittyIndex, kitty_id_2: KittyIndex) {       // 定义breed。由于这个实现比较复杂，所以我们倾向于把这个实现在impl module里做，而不是decl module里。
+        let sender = ensure_signed(origin)?; //先判断必须有个合法的签名
+        let new_kitty_id = Self::do_breed(&sender, kitty_id_1, kitty_id_2)?;    //定义一个do breed方法，由它来调用。
+        Self::deposit_event(RawEvent::Created(sender, new_kitty_id)); //这里的event为了简化就借用了create的。所以无法查看parent，如果有需求的话可以创建一个新的event。
+   
+    }
+
 
     }
 }
