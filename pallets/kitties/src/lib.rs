@@ -36,7 +36,7 @@ decl_storage! {
 
 decl_error!{
     pub enum Error for Module<T: Trait> {
-
+        KittiesCountOverflow,
     }
 }
 
@@ -59,7 +59,7 @@ decl_module! {
 impl<T: Trait> Module<T> {
     fn next_kitty_id() -> sp_std::result::Result<T::KittyIndex, DispatchError>{    //根据现在已有的kitty数量来找到id。
 		let kitty_id = Self::kitties_count();
-		if kitty_id == T::KittyIndex::max_value() {
+		if kitty_id == T::KittyIndex::max_value() {  //因为index是用的u32类型，所以可能会存在越界问题。所以判断如果达到最大值则返回一个错误。并把错误定义到decl_error中。
 			return Err(Error::<T>::KittiesCountOverflow.into());
 		}
 		Ok(kitty_id)
