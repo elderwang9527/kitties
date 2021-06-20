@@ -43,6 +43,7 @@ decl_error!{
 decl_event!(
     pub enum Event<T> where <T as frame_system::Trait>::AccountId, {
         Created(AccountId, KittyIndex),
+        Transferred(AccountId, AccountId, KittyIndex),    // 定义transfer的event
     }
 )
 
@@ -57,6 +58,15 @@ decl_module! {
         Self::insert_kitty(&sender, kitty_id, kitty);  //实例化kitty后insert到map里去。所以这里定义了一个方法来实现。好处也是可重用，比如breed也有相同的操作。
         Self::deposit_event(RawEvent::Created(sender, kitty_id)); //对于create，希望有一些event可以抛出来，这样ui或其它一些应用可以知道kitty已经被创建好这个消息，所以最后会把这个event存储起来。event的定义叫created(不懂)。
     }
+
+    #[weight = 0]
+    pub fn transfer(origin, to: T::AccountId, Kitty_id: KittyIndex) { //定义transfer，这里指定了to的owner是谁，以及对哪个kitty进行操作
+        let sender = ensure_signed(origin)?; //判断方法签名
+        <KittyOwners<T>>::insert(kitty_id, to.clone());  // 把kitty的新owner放到map里去
+        Self::deposit_event(RawEvent::Transferred(sender, to, kitty_id));    // 操作成功后抛出event
+    }
+
+
     }
 }
 
