@@ -51,7 +51,7 @@ decl_module! {
         #[weight=0]
         pub fn create(origin){  //create 一个kitty
         let sender = ensure_signed(origin)?;    //对于所有可调用方法，首先就要判断它的签名
-        //找到新创建的kitty的id，这里定义一个方法来实现，因为找到下个id其它地方也可能会使用。比如breed时。
+        let kitty_id = Self::next_kitty_id()?;    //找到新创建的kitty的id，这里定义一个方法来实现，因为找到下个id其它地方也可能会使用。比如breed时。
     }
     }
 }
