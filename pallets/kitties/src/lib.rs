@@ -38,6 +38,8 @@ decl_storage! {
 decl_error! {
     pub enum Error for Module<T: Trait> {
         KittiesCountOverflow,
+        InvalidKittyId,
+        RequireDifferentParent,
     }
 }
 
@@ -79,7 +81,15 @@ decl_module! {
     }
 }
 
+fn combine_dna(dna1: u8, dna2: u8, selector: u8) -> u8  {
+    // 这个function只是个简单的算法实现，并不需要知道module的trait type之类的，也不需要它的数据。所以可以放到impl module外面
+    (selector & dna1) | (!selector & dna2)
+}
+
 impl<T: Trait> Module<T> {
+
+
+
     fn insert_kitty(owner: &T::AccountId, kitty_id: KittyIndex, kitty: Kitty) {
         Kitties::insert(kitty_id, kitty); //首先向Kitties这个map里面增加key，value数值对
         KittiesCount::put(kitty_id + 1); //因为新增加了一个kitty，count加1。
@@ -105,6 +115,32 @@ impl<T: Trait> Module<T> {
         );
         payload.using_encoded(blake2_128)
     }
+
+
+
+    fn do_breed(sender : &T::AccountId, kitty_id_1: KittyIndex, kitty_id2: T::KittyIndex) -> sp_std::result::Result<KittyIndex, DispatchError>{
+        //这段代码最后部分Result后视频显示不全，所以使用的是SubstrateStarter库中的片段
+        let kitty1 = Self::kitties(kitty_id_1).ok_or(Error::<T>::InvalidKittyId)?;
+        //查看parent id是否存在，如果不存在就抛出错误，交易失败。错误定义为InvalidKittyId
+        let kitty2 = Self::kitties(kitty_id_2).ok_or(Error::<T>::InvalidKittyId)?;
+        //查看parent id是否存在，如果不存在就抛出错误，交易失败。错误定义为InvalidKittyId
+        ensure!(kitty_id_1 != kitty_id_2, Error::<T>::RequireDifferentParent);
+        // 判断两个id是否相同
+        let kitty_id = Self::next_kitty_id()?;
+        // 定义完之前的错误，则可获得一个新的id
+        let kitty1_dna = kitty1.0;
+        let kitty2_dna = kitty2.0;
+        // 获得两个dna的数据
+        let selector = Self::random_value(&sender);
+        // 用随机数，如果随机数某个bit是0，则用kitty1的dna，如果是1，则用kitty2的相应那一位
+        let mut new_dna = [0u8; 16];
+        // 定义数据结构去存放新的dna
+        for i in 0..kitty1_dna.len(){
+            new_dna[i] = combine_dna(kitty1_dna[i], kitty2_dna[i], selector[i]);
+        }
+        Self::insert_kitty(sender, kitty_id, Kitty(new_dna));
+        Ok(kitty_id)
+	}
 }
 
 //测试用例
