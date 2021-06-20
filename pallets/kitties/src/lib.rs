@@ -57,6 +57,13 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
+    fn next_kitty_id() -> sp_std::result::Result<T::KittyIndex, DispatchError>{    //根据现在已有的kitty数量来找到id。
+		let kitty_id = Self::kitties_count();
+		if kitty_id == T::KittyIndex::max_value() {
+			return Err(Error::<T>::KittiesCountOverflow.into());
+		}
+		Ok(kitty_id)
+	}
 
 }
 
