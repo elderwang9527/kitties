@@ -42,7 +42,7 @@ decl_error!{
 
 decl_event!(
     pub enum Event<T> where <T as frame_system::Trait>::AccountId, {
-
+        Created(AccountId, KittyIndex),
     }
 )
 
@@ -55,6 +55,7 @@ decl_module! {
         let dna = Self::random_value(&sender);   //为kitty创建数据，即之前说的u8数组。创建方法需要些随机化的方式
         let kitty = Kitty(dna);                  //有了dna数据后需要存储到链上，此为存储的操作。首先根据dna创建这个数据结构。因为链上定义的type是Kitty（见29行），所以这里用Kitty实例化一个object。
         Self::insert_kitty(&sender, kitty_id, kitty);  //实例化kitty后insert到map里去。所以这里定义了一个方法来实现。好处也是可重用，比如breed也有相同的操作。
+        Self::deposit_event(RawEvent::Created(sender, kitty_id)); //对于create，希望有一些event可以抛出来，这样ui或其它一些应用可以知道kitty已经被创建好这个消息，所以最后会把这个event存储起来。event的定义叫created(不懂)。
     }
     }
 }
