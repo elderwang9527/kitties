@@ -52,6 +52,7 @@ decl_module! {
         pub fn create(origin){  //create 一个kitty
         let sender = ensure_signed(origin)?;    //对于所有可调用方法，首先就要判断它的签名
         let kitty_id = Self::next_kitty_id()?;    //找到新创建的kitty的id，这里定义一个方法来实现，因为找到下个id其它地方也可能会使用。比如breed时。
+        let dna = Self::random_value(&sender);   //为kitty创建数据，即之前说的u8数组。创建方法需要些随机化的方式
     }
     }
 }
@@ -63,6 +64,15 @@ impl<T: Trait> Module<T> {
 			return Err(Error::<T>::KittiesCountOverflow.into());
 		}
 		Ok(kitty_id)
+	}
+
+    fn random_value(sender : &T::AccountId) -> [u8; 16] {  //random value会根据一组数据。seed,account,index作为一个payload。用blake2_128这个哈希函数对内容进行哈希，最终结果是128个bit的一段数据，可以存放到u8，长度是16的数组里面去。
+		let payload = (
+			T::Randomness::random_seed(),	
+			&sender,
+			<frame_system::Module<T>>::extrinsic_index(),
+		);
+		payload.using_encoded(blake2_128)
 	}
 
 }
