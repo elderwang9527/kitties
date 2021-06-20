@@ -26,6 +26,8 @@ serde = { features = ['derive'], optional = true, version = '1.0.101' }
 
 # local dependencies
 pallet-template = { path = '../pallets/template', default-features = false, version = '2.0.0' }
+pallet-kitties = { path = '../pallets/kitties', default-features = false, version = '2.0.0' }
+# runtime 里加入
 
 # Substrate dependencies
 frame-benchmarking = { default-features = false, optional = true, version = '2.0.0' }

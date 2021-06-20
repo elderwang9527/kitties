@@ -4,6 +4,7 @@ panic = 'unwind'
 [workspace]
 members = [
     'node',
-    'pallets/*',
+    'pallets/*', #写了kitty pallet后本来须在这里引入，但这里使用了通配符，所以不需再引入
     'runtime',
 ]
+
