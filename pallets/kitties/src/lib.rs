@@ -1,16 +1,19 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode};
-use frame_support::{decl_module,decl_storage, decl_event, decl_error, StorageValue, ensure, StorageMap, traits::Randomness, Parameter,traits::{ExistenceRequirement ,Get, Currency, ReservableCurrency}
+use codec::{Decode, Encode};
+use frame_support::{
+    decl_error, decl_event, decl_module, decl_storage, ensure,
+    traits::Randomness,
+    traits::{Currency, ExistenceRequirement, Get, ReservableCurrency},
+    Parameter, StorageMap, StorageValue,
 };
-use sp_io::hashing::blake2_128;
 use frame_system::ensure_signed;
+use sp_io::hashing::blake2_128;
 use sp_runtime::DispatchError;
 
 type KittyIndex = u32;
 #[derive(Encode, Decode)]
 pub struct Kitty(pub [u8; 16]);
-
 
 // 以下是pallet常规的开发
 
@@ -19,9 +22,7 @@ pub trait Trait: frame_system::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     //产生kitty的dna数据时需要一些随机的函数
     type Randomness: Randomness<Self::Hash>;
-
 }
-
 
 decl_storage! {
     trait Store for Module<T: Trait> as kitties {
@@ -34,7 +35,7 @@ decl_storage! {
     }
 }
 
-decl_error!{
+decl_error! {
     pub enum Error for Module<T: Trait> {
         KittiesCountOverflow,
     }
@@ -45,7 +46,7 @@ decl_event!(
         Created(AccountId, KittyIndex),
         Transferred(AccountId, AccountId, KittyIndex),    // 定义transfer的event
     }
-)
+);
 
 decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
@@ -71,7 +72,7 @@ decl_module! {
         let sender = ensure_signed(origin)?; //先判断必须有个合法的签名
         let new_kitty_id = Self::do_breed(&sender, kitty_id_1, kitty_id_2)?;    //定义一个do breed方法，由它来调用。
         Self::deposit_event(RawEvent::Created(sender, new_kitty_id)); //这里的event为了简化就借用了create的。所以无法查看parent，如果有需求的话可以创建一个新的event。
-   
+
     }
 
 
@@ -81,29 +82,30 @@ decl_module! {
 impl<T: Trait> Module<T> {
     fn insert_kitty(owner: &T::AccountId, kitty_id: KittyIndex, kitty: Kitty) {
         Kitties::insert(kitty_id, kitty); //首先向Kitties这个map里面增加key，value数值对
-        KittiesCount::put(kitty_id + 1);  //因为新增加了一个kitty，count加1。
+        KittiesCount::put(kitty_id + 1); //因为新增加了一个kitty，count加1。
         <KittyOwners<T>>::insert(kitty_id, owner); //最后把owner保存到链上
     }
 
-    fn next_kitty_id() -> sp_std::result::Result<T::KittyIndex, DispatchError>{    //根据现在已有的kitty数量来找到id。
-		let kitty_id = Self::kitties_count();
-		if kitty_id == T::KittyIndex::max_value() {  //因为index是用的u32类型，所以可能会存在越界问题。所以判断如果达到最大值则返回一个错误。并把错误定义到decl_error中。
-			return Err(Error::<T>::KittiesCountOverflow.into());
-		}
-		Ok(kitty_id)
-	}
+    fn next_kitty_id() -> sp_std::result::Result<T::KittyIndex, DispatchError> {
+        //根据现在已有的kitty数量来找到id。
+        let kitty_id = Self::kitties_count();
+        if kitty_id == T::KittyIndex::max_value() {
+            //因为index是用的u32类型，所以可能会存在越界问题。所以判断如果达到最大值则返回一个错误。并把错误定义到decl_error中。
+            return Err(Error::<T>::KittiesCountOverflow.into());
+        }
+        Ok(kitty_id)
+    }
 
-    fn random_value(sender : &T::AccountId) -> [u8; 16] {  //random value会根据一组数据。seed,account,index作为一个payload。用blake2_128这个哈希函数对内容进行哈希，最终结果是128个bit的一段数据，可以存放到u8，长度是16的数组里面去。
-		let payload = (
-			T::Randomness::random_seed(),	
-			&sender,
-			<frame_system::Module<T>>::extrinsic_index(),
-		);
-		payload.using_encoded(blake2_128)
-	}
-
+    fn random_value(sender: &T::AccountId) -> [u8; 16] {
+        //random value会根据一组数据。seed,account,index作为一个payload。用blake2_128这个哈希函数对内容进行哈希，最终结果是128个bit的一段数据，可以存放到u8，长度是16的数组里面去。
+        let payload = (
+            T::Randomness::random_seed(),
+            &sender,
+            <frame_system::Module<T>>::extrinsic_index(),
+        );
+        payload.using_encoded(blake2_128)
+    }
 }
-
 
 //测试用例
 #[cfg(test)]
