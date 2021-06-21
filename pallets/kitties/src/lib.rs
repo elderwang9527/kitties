@@ -52,6 +52,9 @@ decl_event!(
 
 decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+        type Error = Error<T>;
+        fn deposit_event() = default;
+        // (最先放错位置在impl module里了，现在改为放在decl_module里)首次build时报错，event的定义没放到module里去。可能忽略了两个东西，一个是deposit event这个实现。二是之前metadata里说过，error最好是在decal module里进行绑定，这样metadata会包含这些信息。所以加入以上这两行代码    
         #[weight=0]
         pub fn create(origin){                   //create 一个kitty
         let sender = ensure_signed(origin)?;     //对于所有可调用方法，首先就要判断它的签名
@@ -87,11 +90,6 @@ fn combine_dna(dna1: u8, dna2: u8, selector: u8) -> u8  {
 }
 
 impl<T: Trait> Module<T> {
-    type Error = Error<T>;
-    fn deposit_event() = default;
-    // 首次build时报错，event的定义没放到module里去。可能忽略了两个东西，一个是deposit event这个实现。二是之前metadata里说过，error最好是在decal module里进行绑定，这样metadata会包含这些信息。所以加入以上这两行代码
-
-
     fn insert_kitty(owner: &T::AccountId, kitty_id: KittyIndex, kitty: Kitty) {
         Kitties::insert(kitty_id, kitty); //首先向Kitties这个map里面增加key，value数值对
         KittiesCount::put(kitty_id + 1); //因为新增加了一个kitty，count加1。

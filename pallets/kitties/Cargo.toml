@@ -21,11 +21,13 @@ version = '1.3.4'
 [dependencies]
 frame-support = { default-features = false, version = '2.0.0' }
 frame-system = { default-features = false, version = '2.0.0' }
-
-[dev-dependencies]
 sp-core = { default-features = false, version = '2.0.0' }
 sp-io = { default-features = false, version = '2.0.0' }
 sp-runtime = { default-features = false, version = '2.0.0' }
+sp-std = { default-features = false, version = '2.0.0' }
+# 和template相比多用了一些dependencies。需要在cargo.toml里进行添加
+
+[dev-dependencies]
 
 [features]
 default = ['std']
