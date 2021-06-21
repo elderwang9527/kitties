@@ -233,6 +233,8 @@ mod test {
     // 39：08 类型定义好了，写一些测试用例。其环境需要用这个函数来建立，主要目的是build存储。然后需要通过runtime（<Test>）这个泛型作为它的参数。得到的结果就是测试的环境，叫做TestExternalities。... 39:51
     fn owned_kitties_can_append_values() {
         new_test_ext().execute_with(||{
+            run_to_block(10);
+            // 4525 区块加10，测试可以跑通了，kitties开发结束。
             assert_eq!(Kitties::create(Origin::signed(1),), Ok(()));
         })
     }
