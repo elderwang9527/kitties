@@ -66,7 +66,7 @@ decl_module! {
     }
 
     #[weight = 0]
-    pub fn transfer(origin, to: T::AccountId, Kitty_id: KittyIndex) { //定义transfer，这里指定了to的owner是谁，以及对哪个kitty进行操作
+    pub fn transfer(origin, to: T::AccountId, kitty_id: KittyIndex) { //定义transfer，这里指定了to的owner是谁，以及对哪个kitty进行操作
         let sender = ensure_signed(origin)?; //判断方法签名
         <KittyOwners<T>>::insert(kitty_id, to.clone());  // 把kitty的新owner放到map里去
         Self::deposit_event(RawEvent::Transferred(sender, to, kitty_id));    // 操作成功后抛出event
@@ -119,7 +119,7 @@ impl<T: Trait> Module<T> {
     fn do_breed(
         sender: &T::AccountId,
         kitty_id_1: KittyIndex,
-        kitty_id2: T::KittyIndex,
+        kitty_id_2: T::KittyIndex,
     ) -> sp_std::result::Result<KittyIndex, DispatchError> {
         //这段代码最后部分Result后视频显示不全，所以使用的是SubstrateStarter库中的片段
         let kitty1 = Self::kitties(kitty_id_1).ok_or(Error::<T>::InvalidKittyId)?;
