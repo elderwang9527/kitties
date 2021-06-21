@@ -87,7 +87,9 @@ fn combine_dna(dna1: u8, dna2: u8, selector: u8) -> u8  {
 }
 
 impl<T: Trait> Module<T> {
-
+    type Error = Error<T>;
+    fn deposit_event() = default;
+    // 首次build时报错，event的定义没放到module里去。可能忽略了两个东西，一个是deposit event这个实现。二是之前metadata里说过，error最好是在decal module里进行绑定，这样metadata会包含这些信息。所以加入以上这两行代码
 
 
     fn insert_kitty(owner: &T::AccountId, kitty_id: KittyIndex, kitty: Kitty) {
