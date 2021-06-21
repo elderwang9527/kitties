@@ -8,3 +8,10 @@
 
 调用pallet本身的存储、方法还不够。因为pallet对其它pallet有依赖，比如像system(没听清)。比如刚才做random时使用的random flip pallet。所以依赖一定要定义清楚才能作下面的测试、
 35:58
+
+36:05
+对于origin来说，每个调用的函数都得做个判断，看它是不是合法的签名。这里就是用这个宏来模拟origin。
+36：28
+
+36：28
+这里的test对应的是我们在runtime里定义的

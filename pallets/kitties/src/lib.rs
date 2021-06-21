@@ -166,9 +166,11 @@ mod test {
     impl_outer_origin! {
         pub enum Origin for Test {}
     }
+    // 36:05 对于origin来说，每个调用的函数都得做个判断，看它是不是合法的签名。这里就是用这个宏来模拟origin。36：28
 
     #[derive(Clone, Eq, PartialEq)]
     pub struct Test;
+    // 36:28 这里的test对应的是我们在runtime里定义的
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
         pub const MaximumBlockWeight: Weight = 1024;
