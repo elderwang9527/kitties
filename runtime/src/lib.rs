@@ -269,6 +269,8 @@ impl pallet_template::Trait for Runtime {
 }
 impl pallet_kitties::Trait for Runtime {
 	type Event = Event;
+    type Randomness = RandomnessCollectiveFlip;
+    // runtime里缺乏randomness这个type，所以添加上
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
