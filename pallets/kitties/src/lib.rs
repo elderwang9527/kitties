@@ -219,4 +219,10 @@ mod test {
         system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
     }
     // 39：08 类型定义好了，写一些测试用例。其环境需要用这个函数来建立，主要目的是build存储。然后需要通过runtime（<Test>）这个泛型作为它的参数。得到的结果就是测试的环境，叫做TestExternalities。... 39:51
+    fn owned_kitties_can_append_values() {
+        new_test_ext().execute_with(||{
+            assert_eq!(Kitties::create(Origin::signed(1),), Ok(()));
+        })
+    }
+    // 3955 一个简单的测试代码，查看在create一个kitty时能否成功。
 }
