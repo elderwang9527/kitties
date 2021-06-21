@@ -214,4 +214,9 @@ mod test {
     }
 
     pub type Kitties = Module<Test>;
+
+    pub fn new_test_ext() -> sp_io::TestExternalities {
+        system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
+    }
+    // 39：08 类型定义好了，写一些测试用例。其环境需要用这个函数来建立，主要目的是build存储。然后需要通过runtime（<Test>）这个泛型作为它的参数。得到的结果就是测试的环境，叫做TestExternalities。... 39:51
 }
