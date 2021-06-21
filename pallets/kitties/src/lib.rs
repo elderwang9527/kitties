@@ -22,6 +22,7 @@ pub trait Trait: frame_system::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     //产生kitty的dna数据时需要一些随机的函数
     type Randomness: Randomness<Self::Hash>;
+    type KittyIndex: Get<u32>;
 }
 
 decl_storage! {
