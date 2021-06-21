@@ -215,6 +215,18 @@ mod test {
 
     pub type Kitties = Module<Test>;
 
+    pub type System =frame_system::Module<Test>;
+    fn run_to_block(n:u64){
+	while System::block_number() < n {
+		Kitties::on_finalize(SystemM::block_number());
+		System::on_finalize(SystemM::block_number());
+		System::set_block_number(SystemM::block_number()+1);
+		System::on_initialize(SystemM::block_number());
+		Kitties::on_initialize(SystemM::block_number());
+	}
+}
+
+
     pub fn new_test_ext() -> sp_io::TestExternalities {
         system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
     }
