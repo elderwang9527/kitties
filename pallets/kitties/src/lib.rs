@@ -54,7 +54,7 @@ decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
         type Error = Error<T>;
         fn deposit_event() = default;
-        // (最先放错位置在impl module里了，现在改为放在decl_module里)首次build时报错，event的定义没放到module里去。可能忽略了两个东西，一个是deposit event这个实现。二是之前metadata里说过，error最好是在decal module里进行绑定，这样metadata会包含这些信息。所以加入以上这两行代码    
+        // (最先放错位置在impl module里了，现在改为放在decl_module里)首次build时报错，event的定义没放到module里去。可能忽略了两个东西，一个是deposit event这个实现。二是之前metadata里说过，error最好是在decal module里进行绑定，这样metadata会包含这些信息。所以加入以上这两行代码
         #[weight=0]
         pub fn create(origin){                   //create 一个kitty
         let sender = ensure_signed(origin)?;     //对于所有可调用方法，首先就要判断它的签名
@@ -84,7 +84,7 @@ decl_module! {
     }
 }
 
-fn combine_dna(dna1: u8, dna2: u8, selector: u8) -> u8  {
+fn combine_dna(dna1: u8, dna2: u8, selector: u8) -> u8 {
     // 这个function只是个简单的算法实现，并不需要知道module的trait type之类的，也不需要它的数据。所以可以放到impl module外面
     (selector & dna1) | (!selector & dna2)
 }
@@ -116,9 +116,11 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-
-
-    fn do_breed(sender : &T::AccountId, kitty_id_1: KittyIndex, kitty_id2: T::KittyIndex) -> sp_std::result::Result<KittyIndex, DispatchError>{
+    fn do_breed(
+        sender: &T::AccountId,
+        kitty_id_1: KittyIndex,
+        kitty_id2: T::KittyIndex,
+    ) -> sp_std::result::Result<KittyIndex, DispatchError> {
         //这段代码最后部分Result后视频显示不全，所以使用的是SubstrateStarter库中的片段
         let kitty1 = Self::kitties(kitty_id_1).ok_or(Error::<T>::InvalidKittyId)?;
         //查看parent id是否存在，如果不存在就抛出错误，交易失败。错误定义为InvalidKittyId
@@ -135,12 +137,12 @@ impl<T: Trait> Module<T> {
         // 用随机数，如果随机数某个bit是0，则用kitty1的dna，如果是1，则用kitty2的相应那一位
         let mut new_dna = [0u8; 16];
         // 定义数据结构去存放新的dna
-        for i in 0..kitty1_dna.len(){
+        for i in 0..kitty1_dna.len() {
             new_dna[i] = combine_dna(kitty1_dna[i], kitty2_dna[i], selector[i]);
         }
         Self::insert_kitty(sender, kitty_id, Kitty(new_dna));
         Ok(kitty_id)
-	}
+    }
 }
 
 //测试用例
@@ -148,65 +150,66 @@ impl<T: Trait> Module<T> {
 mod test {
     use super::*;
 
-    use sp_core::H256;
     use frame_support::{
-        impl_outer_origin,
-        parameter_types,
+        impl_outer_origin, parameter_types,
+        traits::{OnFinalize, OnInitialize},
         weights::Weight,
-        traits::{OnFinalize,OnInitialize},
-    };
-    use sp_runtime::{
-        traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
     };
     use frame_system as system;
-    
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{BlakeTwo256, IdentityLookup},
+        Perbill,
+    };
+
     impl_outer_origin! {
         pub enum Origin for Test {}
     }
-    
-#[derive(Clone, Eq, PartialEq)]
-pub struct Test;
-parameter_types! {
-	pub const BlockHashCount: u64 = 250;
-	pub const MaximumBlockWeight: Weight = 1024;
-	pub const MaximumBlockLength: u32 = 2 * 1024;
-	pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
-}
 
-impl system::Trait for Test {
-	type BaseCallFilter = ();
-	type Origin = Origin;
-	type Call = ();
-	type Index = u64;
-	type BlockNumber = u64;
-	type Hash = H256;
-	type Hashing = BlakeTwo256;
-	type AccountId = u64;
-	type Lookup = IdentityLookup<Self::AccountId>;
-	type Header = Header;
-	type Event = ();
-	type BlockHashCount = BlockHashCount;
-	type MaximumBlockWeight = MaximumBlockWeight;
-	type DbWeight = ();
-	type BlockExecutionWeight = ();
-	type ExtrinsicBaseWeight = ();
-	type MaximumExtrinsicWeight = MaximumBlockWeight;
-	type MaximumBlockLength = MaximumBlockLength;
-	type AvailableBlockRatio = AvailableBlockRatio;
-	type Version = ();
-	type PalletInfo = ();
-	type AccountData = ();
-	type OnNewAccount = ();
-	type OnKilledAccount = ();
-	type SystemWeightInfo = ();
-}
+    #[derive(Clone, Eq, PartialEq)]
+    pub struct Test;
+    parameter_types! {
+        pub const BlockHashCount: u64 = 250;
+        pub const MaximumBlockWeight: Weight = 1024;
+        pub const MaximumBlockLength: u32 = 2 * 1024;
+        pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
+    }
 
-type Randomness = pallet_randomness_collective_flip::Module<Test>;
+    impl system::Trait for Test {
+        type BaseCallFilter = ();
+        type Origin = Origin;
+        type Call = ();
+        type Index = u64;
+        type BlockNumber = u64;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type AccountId = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
+        type Header = Header;
+        type Event = ();
+        type BlockHashCount = BlockHashCount;
+        type MaximumBlockWeight = MaximumBlockWeight;
+        type DbWeight = ();
+        type BlockExecutionWeight = ();
+        type ExtrinsicBaseWeight = ();
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
+        type MaximumBlockLength = MaximumBlockLength;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type Version = ();
+        type PalletInfo = ();
+        type AccountData = ();
+        type OnNewAccount = ();
+        type OnKilledAccount = ();
+        type SystemWeightInfo = ();
+    }
 
-impl Trait for Test {
-	type Event = ();
-	type Randomness = Randomness;
-}
+    type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
-pub type Kitties= Module<Test>;
+    impl Trait for Test {
+        type Event = ();
+        type Randomness = Randomness;
+    }
+
+    pub type Kitties = Module<Test>;
 }
