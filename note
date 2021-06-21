@@ -3,5 +3,8 @@
 33:20 测试环境搭建：对测试环境搭建有很多要求，runtime里有哪些pallet，哪些trait，测试里面也必须有。substrate提供了一个测试环境会模拟runtime里的一些数据的存放，就是说会把本身要存在链上的数据存在内存环境中去。仅仅只是这个作用。需要你去调用runtime里的这些函数，对这些数据进行转换变化。再去check这些数据是否正确。
 34:40
 
+34:45
+拷贝所需的测试环境（代码较多，我主要是从https://github.com/hotpoor/learn_substrate/blob/af5ed3cd1739fe6cceafa62694d8066c1d911c14/substrate_node/pallets/kitties/src/mock.rs中复制粘贴的。）
 
-
+调用pallet本身的存储、方法还不够。因为pallet对其它pallet有依赖，比如像system(没听清)。比如刚才做random时使用的random flip pallet。所以依赖一定要定义清楚才能作下面的测试、
+35:58
