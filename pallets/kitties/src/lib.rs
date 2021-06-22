@@ -120,7 +120,7 @@ impl<T: Trait> Module<T> {
     fn do_breed(
         sender: &T::AccountId,
         kitty_id_1: KittyIndex,
-        kitty_id_2: T::KittyIndex,
+        kitty_id_2: KittyIndex,
     ) -> sp_std::result::Result<KittyIndex, DispatchError> {
         //这段代码最后部分Result后视频显示不全，所以使用的是SubstrateStarter库中的片段
         let kitty1 = Self::kitties(kitty_id_1).ok_or(Error::<T>::InvalidKittyId)?;
