@@ -26,13 +26,13 @@ pub trait Trait: frame_system::Trait {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as kitties {
+    trait Store for Module<T: Trait> as Kitties {
         //用于存储kitty数据，key是它的id
-        pub Kitties get(fn kitties): map hasher(blake2_128_concat) T::KittyIndex => Option<Kitty>;
+        pub Kitties get(fn kitties): map hasher(blake2_128_concat) KittyIndex => Option<Kitty>;
         //记录到了第几个kitty
-        pub KittiesCount get(fn kitties_count): T::KittyIndex;
+        pub KittiesCount get(fn kitties_count): KittyIndex;
         //kitty的owner
-        pub KittyOwners get(fn kitty_owner): map hasher(blake2_128_concat) T::KittyIndex => Option<T::AccountId>;
+        pub KittyOwners get(fn kitty_owner): map hasher(blake2_128_concat) KittyIndex => Option<T::AccountId>;
     }
 }
 
@@ -97,10 +97,10 @@ impl<T: Trait> Module<T> {
         <KittyOwners<T>>::insert(kitty_id, owner); //最后把owner保存到链上
     }
 
-    fn next_kitty_id() -> sp_std::result::Result<T::KittyIndex, DispatchError> {
+    fn next_kitty_id() -> sp_std::result::Result<KittyIndex, DispatchError> {
         //根据现在已有的kitty数量来找到id。
         let kitty_id = Self::kitties_count();
-        if kitty_id == T::KittyIndex::max_value() {
+        if kitty_id == KittyIndex::max_value() {
             //因为index是用的u32类型，所以可能会存在越界问题。所以判断如果达到最大值则返回一个错误。并把错误定义到decl_error中。
             return Err(Error::<T>::KittiesCountOverflow.into());
         }
